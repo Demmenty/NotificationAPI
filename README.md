@@ -8,15 +8,15 @@ Python, Django Rest Framework, PostgreSQL, Celery, Redis, Docker
 
 ## Installation
 
-- create .env file in root with your settings according to .env.example
-- install docker
+- создайте файл .env с настройками по примеру .env.example
+- установите Dicker
 
-- build and run application with its dependencies
+- соберите и запустите проект
 ```
 docker-compose up -d --build
 ```
 
-- create admin if needed
+- создайте администратора
 ```
 docker exec -it api python manage.py createsuperuser
 ```
