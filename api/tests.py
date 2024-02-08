@@ -1,7 +1,6 @@
 import time
 from unittest.mock import call, patch
 
-from celery.exceptions import MaxRetriesExceededError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -17,7 +16,7 @@ from api.serializers import (
     MessageSerializer,
 )
 from api.services import send_message
-from api.tasks import send_message_task, start_distribution, start_distribution_task
+from api.tasks import start_distribution
 from api.utils import generate_stats_message
 
 # Models
@@ -158,7 +157,7 @@ class MessageModelTestCase(TestCase):
         self.assertEqual(str(message), f"Сообщение №{message.id}")
 
 
-# # Serializers
+# Serializers
 
 
 class ClientSerializerTestCase(TestCase):
@@ -325,7 +324,7 @@ class MessageSerializerTestCase(TestCase):
         self.assertEqual(serializer.data, expected_data)
 
 
-# # Views
+# Views
 
 
 class ClientViewSetTestCase(APITestCase):
