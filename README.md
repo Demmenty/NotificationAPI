@@ -21,8 +21,17 @@ docker-compose up -d --build
 docker exec -it api python manage.py createsuperuser
 ```
 
+## Testing
+
+```
+docker exec -it api python manage.py test
+docker exec -it api coverage run manage.py test
+docker exec -it api coverage report -m
+```
+
 ### Completed additions
 
+1. организовать тестирование написанного кода
 3. подготовить docker-compose для запуска всех сервисов проекта одной командой
 5. сделать так, чтобы по адресу /docs/ открывалась страница со Swagger UI и в нём отображалось описание разработанного API.
 6. реализовать администраторский Web UI для управления рассылками и получения статистики по отправленным сообщениям
