@@ -1,0 +1,81 @@
+services:
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis
+      - postgres
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 500M 
+
+  worker:
+    container_name: worker
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    depends_on:
+      - api
+      - redis
+    env_file:
+      - .env
+    command: celery -A config worker -l info
+
+  beat:
+    container_name: beat
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    depends_on:
+      - api
+      - redis
+    env_file:
+      - .env
+    command: celery -A config beat -l info
+
+  redis:
+    container_name: redis
+    build:
+      context: .
+      dockerfile: docker/redis/Dockerfile
+    env_file:
+      - .env
+    hostname: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  postgres:
+    container_name: postgres
+    hostname: postgres
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d postgres"]
+      interval: 30s
+      timeout: 60s
+      retries: 3
+
+volumes:
+  redis_data:
+  postgres_data:

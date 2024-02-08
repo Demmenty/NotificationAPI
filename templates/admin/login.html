@@ -1,0 +1,134 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/css/login.css' %}">
+    {{ form.media }}
+    <style>
+        #header {
+            flex-direction: column;
+        }
+        #site-name {
+            margin-inline-end: unset;
+        }
+        #user-tools {
+            margin: 10px 0 0 0; 
+            background: var(--header-bg); 
+            color: var(--header-color);
+        }
+        .google-login-button {
+            display: flex;
+            background-color: #417690;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 9px 15px;
+            align-items: center;
+            border-radius: 4px;
+            font-size: 0.8125rem;
+            font-family: var(--font-family-primary);
+        }
+        @media (max-width: 767px) {
+            .google-login-button {
+                text-transform: uppercase;
+            }
+        }
+        .google-login-button:hover {
+            background-color: #205067;
+        }
+        .google-icon {
+            margin-right: 15px; 
+        }
+    </style>
+{% endblock %}
+
+{% block title %}
+    {% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Notification administration
+{% endblock %}
+
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}
+    {% if not user.is_anonymous %}
+        <div id="user-tools">
+            {% block welcome-msg %}
+                {% translate 'Welcome,' %}
+                <strong>{% firstof user.get_short_name user.get_username %}</strong>
+            {% endblock %}
+            {% block userlinks %}
+                <a href="{{ site_url }}api">{% translate 'View API' %}</a> /
+                <a href="{% url 'schema-swagger-ui' %}">{% translate 'Docs' %}</a> /
+                <form id="logout-form" method="post" action="{% url 'users:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">{% translate 'Log out' %}</button>
+                </form>
+            {% endblock %}
+            {% include "admin/color_theme_toggle.html" %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<div id="content-main">
+    {% if form.errors and not form.non_field_errors %}
+        <p class="errornote">
+            {% blocktranslate count counter=form.errors.items|length %}
+            Please correct the error below.{% plural %}Please correct the errors below.
+            {% endblocktranslate %}
+        </p>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+            <p class="errornote">{{ error }}</p>
+        {% endfor %}
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        <p class="errornote">
+            {% blocktranslate trimmed %}
+                You are authenticated as {{ username }}, but are not authorized to
+                access this page. Would you like to login to a different account?
+            {% endblocktranslate %}
+        </p>
+    {% endif %}
+
+    <form action="{{ app_path }}" method="post" id="login-form">
+        {% csrf_token %}
+        <div class="form-row">
+            {{ form.username.errors }}
+            {{ form.username.label_tag }} {{ form.username }}
+        </div>
+        <div class="form-row">
+            {{ form.password.errors }}
+            {{ form.password.label_tag }} {{ form.password }}
+            <input type="hidden" name="next" value="{{ next }}">
+        </div>
+        {% url 'admin_password_reset' as password_reset_url %}
+        {% if password_reset_url %}
+            <div class="password-reset-link">
+                <a href="{{ password_reset_url }}">
+                    {% translate 'Forgotten your password or username?' %}
+                </a>
+            </div>
+        {% endif %}
+        <div class="submit-row">
+            <input type="submit" value="{% translate 'Log in' %}">
+        </div> 
+    </form>
+    <hr style="margin: 17px 0 18px 0">
+    <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-login-button">
+        <svg xmlns="http://www.w3.org/2000/svg" class="google-icon" fill="currentColor" width="20" height="20" viewBox="0 0 16 16">
+            <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z"/>
+        </svg>
+        Log in with Google
+    </a>
+</div>
+{% endblock %}
