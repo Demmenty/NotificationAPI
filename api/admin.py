@@ -2,8 +2,16 @@ from django.contrib import admin
 
 from api.models import Client, Distribution, Message
 
-admin.site.register(Client)
-admin.site.register(Message)
+
+class ClientAdmin(admin.ModelAdmin):
+    list_display = (
+        "__str__",
+        "phone_number",
+        "operator_code",
+        "tag",
+        "timezone",
+    )
+    search_fields = ("operator_code", "tag", "phone_number")
 
 
 class DistributionAdmin(admin.ModelAdmin):
@@ -49,4 +57,18 @@ class DistributionAdmin(admin.ModelAdmin):
         return obj.total_messages - obj.sent_messages
 
 
+class MessageAdmin(admin.ModelAdmin):
+    list_display = (
+        "__str__",
+        "created_at",
+        "status",
+        "distribution",
+        "client",
+    )
+    list_filter = ("status",)
+    search_fields = ("distribution__message_text", "client__phone_number")
+
+
+admin.site.register(Client, ClientAdmin)
 admin.site.register(Distribution, DistributionAdmin)
+admin.site.register(Message, MessageAdmin)
