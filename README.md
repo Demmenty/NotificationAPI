@@ -9,7 +9,7 @@ Python, Django Rest Framework, PostgreSQL, Celery, Redis, Docker
 ## Installation
 
 - создайте файл .env с настройками по примеру .env.example
-- установите Dicker
+- установите Docker
 
 - соберите и запустите проект
 ```
